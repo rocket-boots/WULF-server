@@ -1,0 +1,27 @@
+{
+  "name": "wulf-server",
+  "version": "0.0.1",
+  "description": "Server for Web-based Ultima-Like Framework",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rocket-boots/WULF-server.git"
+  },
+  "keywords": [
+    "rpg",
+    "game"
+  ],
+  "author": "Luke",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/rocket-boots/WULF-server/issues"
+  },
+  "homepage": "https://github.com/rocket-boots/WULF-server#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "socket.io": "^2.3.0"
+  }
+}
