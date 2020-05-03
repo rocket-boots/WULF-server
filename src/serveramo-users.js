@@ -1,5 +1,6 @@
+const usernaming = require('./usernaming.js');
+
 const users = {};
-const CONNECTION = 'connection';
 const SYSTEM = 'System';
 const events = Object.freeze({
 	DISCONNECT: 'disconnect',
@@ -8,7 +9,8 @@ const events = Object.freeze({
 	REGISTER: 'register',
 	USERS: 'users',
 	USER_JOINED: 'user-joined',
-	USER_LEFT: 'user-left'
+	USER_LEFT: 'user-left',
+	USER_CREATED: 'user-created'
 });
 const serveramoUsers = { start, users, events }
 let serveramo;
@@ -16,9 +18,13 @@ let usersNamespace;
 
 function start(serveramoParam, namespaceEndpoint = '/users') {
 	serveramo = serveramoParam; // sync
-	const { io } = serveramo;
-	usersNamespace = io.of(namespaceEndpoint);
-	usersNamespace.on(CONNECTION, onConnectNewSocket);
+	const disconnectUser = (reason, user) => { handleUserDisconnect(user, reason) };
+	usersNamespace = serveramo.createNamespace(
+		'users',
+		namespaceEndpoint,
+		onConnectNewSocket,
+		disconnectUser
+	);
 	return serveramoUsers;
 }
 
@@ -26,9 +32,10 @@ function onConnectNewSocket(socket) {
 	const user = createNewUser(socket);
 	sendNewUserAnnouncements(user);
 
-	socket.on(events.DISCONNECT, (reason) => { handleUserDisconnect(user, reason); });
+	// socket.on(events.DISCONNECT, (reason) => { handleUserDisconnect(user, reason); });
 	socket.on(events.CHAT, (message) => { handleChatReived(user, message); });
 	socket.on(events.RENAME, (name) => { renameUser(user, newName); });
+	return user;
 }
 
 function handleChatReived(user, message) {
@@ -53,12 +60,12 @@ function handleChatReived(user, message) {
 
 function handleUserDisconnect(user, reason) {
 	user.socket.broadcast.emit(events.CHAT, user.name + ' has left.', SYSTEM);
-	removeUser(user.userId);
+	removeUser(user.userKey);
 	sendUsers();
 }
 
 function sendNewUserAnnouncements(user) {
-	console.log('New user connected:', user.userId);
+	console.log('New user connected:', user.userKey);
 	user.socket.emit(events.REGISTER, cloneUser(user));
 	sendPersonalSystemMessage('You have joined as ' + user.name, user);
 	user.socket.broadcast.emit(events.CHAT, user.name + ' has joined.', SYSTEM);
@@ -97,67 +104,37 @@ function renameUser(user, newName) {
 }
 
 function createNewUser(socket) {
-	const userName = getQuasiUniqueUserName(socket.id);
-	const userId = userName + '-' + socket.id;
+	const name = usernaming.getQuasiUniqueUserName();
+	const userKey = usernaming.getUserCuid(name);
+	const sessionKey = usernaming.getUserCuid(`Session-${name}`);
 	const user = {
-		userId: userId,
-		name: userName,  // + '-' + socket.id.substr(0,1),
+		userKey,
+		name,
+		sessionKey,
 		console: null,
 		socketId: socket.id,
 		socket: socket
 	};
-	users[userId] = user;
-	serveramo.trigger(events.USER_JOINED);
+	users[userKey] = user;
+	// TODO: separate these events apart when allowing to re-login
+	serveramo.trigger(events.USER_CREATED, { userKey });
+	serveramo.trigger(events.USER_JOINED, { userKey });
 	return user;
 }
 
-function removeUser(userId) {
-	delete users[userId];
-	console.log('Removing user:', userId);
+function removeUser(userKey) {
+	delete users[userKey];
+	console.log('Removing user:', userKey);
 	serveramo.trigger(events.USER_LEFT);
 }
 
 function cloneUser(user) {
 	return {
-		userId: user.userId,
+		userKey: user.userKey,
 		name: user.name,
+		sessionKey: user.sessionKey,
 		socketId: user.socketId
 	};
-}
-
-function getQuasiUniqueUserName() {
-	const nameOptions = [
-		// 'Explorer', 'Astronaut', 'Cosmonaut', 'Traveler', 'Adventurer',
-		'Asteroid',	'Aster', 'Alyssum', 'Aardvark',
-		'Box', 'Badger', 'Bat', 'Balsam',
-		'Clover', 'Camel', 'Caterpillar', 'Coyote',
-		'Daffodil', 'Deer', 'Dragonfly',
-		'Elderberry', 'Emu', 'Electron',
-		'Fjord', 'Falcon', 'Frog',
-		'Galaxy', 'Gecko', 'Gopher',
-		'Hollyhocks', 'Hedgehog', 'Hyena',
-		'Ice', 'Iguana',
-		'Jasmine', 'Jellyfish', 'Jackal',
-		'Kalmia', 'Koala', 'Kudu',
-		'Lavender', 'Lilac', 'Lotus', 'Lunaria', 'Liger', 'Lemming',
-		'Magnolia', 'Mallow', 'Meerkat',
-		'Narcissus', 'Newt',
-		'Oriole', 'Orchid', 'Ostrich',
-		'Planet', 'Petunia', 'Panther', 'Platypus', 'Proton',
-		'Quince', 'Quetzal',
-		'Raspberry', 'Rudbeckia', 'Raccoon', 'Rhinoceros',
-		'Snapdragon', 'Sparrow', 'Seahorse',
-		'Trillium', 'Tulip', 'Tortoise', 'Tapir',
-		'Ursinia', 'Uguisu',
-		'Viburnum', 'Violet', 'Vulture',
-		'Waterlily', 'Wildebeest', 'Warthog',
-		'Xeranthemum', 'Xylobium',
-		'Yarrow', 'Yak',
-		'Zenobia', 'Zebra',
-	];
-	const i = Math.floor(Math.random() * (nameOptions.length - 1));
-	let name = nameOptions[i];
-	return name + '-' + Math.round(Math.random() * 1000);
 }
 
 function getUsers() {

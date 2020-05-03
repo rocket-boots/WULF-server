@@ -1,35 +1,59 @@
 // Based on https://hackernoon.com/how-to-build-a-multiplayer-browser-game-4a793818c29b
-// Dependencies
+
+// Library Dependencies
 const express = require('express');
+const socketIO = require('socket.io');
+// import express from '../node_modules/express/index.js';
+// import socketIO from '../node_modules/socket.io/lib/index.js';
+
+// Node Dependencies
 const http = require('http');
 const path = require('path');
-const socketIO = require('socket.io');
+// import http from 'http';
+// import path from 'path';
+
+// Setup
 const app = express();
 const server = http.Server(app);
 const io = socketIO(server);
+const CONNECT = 'connect';
+const DISCONNECT = 'disconnect';
 const PORT = 5000;
 const events = {};
 const subscriptions = {};
+const namespaces = {};
 
-function start(staticPath = '/static') {
+function start(basePath = './', staticDir = '/static') {
+	const staticPath = path.normalize(path.join(basePath, staticDir));
+	const indexPath = path.normalize(path.join(staticPath, `/index.html`));
 
 	app.set('port', PORT);
-	app.use('/static', express.static(__dirname + '...' + staticPath));
-
-	// TODO: Why does normalize not work??
-	const indexPath = path.normalize(path.join(__dirname, '...', staticPath, `/index.html`));
-	// console.log(path.join(__dirname, staticPath, `/index.html`));
-	console.log(indexPath);
+	app.use('/static', express.static(staticPath));
 
 	// Routing
 	app.get('/', function(request, response) {
 		response.sendFile(indexPath);
 	});
 
-	// Starts the server.
+	// Starts the server
 	server.listen(PORT, function() {
 		console.log(`Starting server on port ${PORT}. Open http://localhost:${PORT} in your browser.`);
 	});
+}
+
+function createNamespace(name, namespaceEndpoint, onConnectNewSocket, onDisconnect) {
+	if (!name) { return false; }
+	namespaces[name] = io.of(namespaceEndpoint);
+	namespaces[name].on(CONNECT, (socket) => {
+		let data;
+		if (onConnectNewSocket) {
+			data = onConnectNewSocket(socket);
+		}
+		if (onDisconnect) {
+			socket.on(DISCONNECT, (reason) => { onDisconnect(reason, data); });
+		}
+	});
+	return namespaces[name];
 }
 
 function subscribe(eventName, callback) {
@@ -52,5 +76,5 @@ module.exports = {
 	start, events, io,
 	subscribe, publish,
 	on: subscribe, trigger: publish,
-	
+	createNamespace,
 };
