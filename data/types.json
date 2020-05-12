@@ -1,0 +1,96 @@
+{
+	"entityTypes": {
+		"terrain": {
+			"sprite": ["sos", "dirt", "darkPurple"],
+			"passable": 1
+		},
+		"block": {
+			"sprite": ["sos", "stones", "darkPurple"],
+			"passable": 0,
+			"hp": 10
+		},
+		"item": {
+			"sprite": ["sos", "stones", "darkPurple"],
+			"passable": 0.75,
+			"hp": 10
+		},
+		"character": {
+			"sprite": ["sos", "mermaid", "darkPurple"],
+			"passable": 0.5
+		}
+	},
+	"tileTypes": {
+		"dirt": {
+			"type": "terrain",
+			"sprite": ["sos", "dirt", "brown"],
+			"passable": 1
+		},
+		"grass": {
+			"type": "terrain",
+			"sprite": ["sos", "grass", "green"],
+			"passable": 1
+		},
+		"mountain": {
+			"type": "terrain",
+			"sprite": ["sos", "stones", "lightGray"],
+			"passable": 0
+		},
+		"water": {
+			"type": "terrain",
+			"sprite": ["sos", "ocean", "blue"],
+			"passable": 0
+		},
+
+
+		"tree": {
+			"type": "block",
+			"sprite": ["sos", "tree", "green"],
+			"passable": 0,
+			"chop": {
+				"drops": [1, "log", 100]
+			},
+			"harvest": {
+				"drops": [1, "apple", 50]
+			}
+		},
+		"plant": {
+			"type": "block",
+			"sprite": ["sos", "small-plant", "green"],
+			"passable": 1,
+			"harvest": {
+				"drops": [1, "seeds", 100]
+			}
+		},
+		"brick": {
+			"type": "block",
+			"sprite": ["sos", "stone-wall-1", "lightGray"],
+			"passable": 0
+		},
+		"door": {
+			"type": "block",
+			"sprite": ["sos", "door", "brown"],
+			"passable": 0.9,
+			"open": "door-open"
+		},
+		"door-open": {
+			"type": "block",
+			"sprite": ["sos", "door-open", "brown"],
+			"passable": 1,
+			"shut": "door"
+		},
+
+
+		"seeds": {
+			"type": "item",
+			"sprite": ["sos", "turnip", "green"]
+		},
+		"log": {
+			"type": "item",
+			"sprite": ["sos", "leaf", "brown"]
+		},
+		"apple": {
+			"type": "item",
+			"sprite": ["sos", "apple", "red"]
+		}
+	}
+}

@@ -3,10 +3,10 @@
   "version": "0.0.1",
   "description": "Server for Web-based Ultima-Like Framework",
   "main": "server.js",
-  "type": "commonjs",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js",
+    "start": "node --experimental-modules --experimental-json-modules server.mjs",
     "build": "webpack"
   },
   "repository": {
@@ -26,6 +26,7 @@
   "dependencies": {
     "cuid": "^2.1.8",
     "express": "^4.17.1",
+    "rocket-boots-coords": "git+https://github.com/rocket-boots/Coords.git#master",
     "rocket-boots-loop": "git+https://github.com/rocket-boots/Loop.git#master",
     "socket.io": "^2.3.0"
   },

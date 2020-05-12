@@ -1,4 +1,4 @@
-const cuid = require('cuid');
+import cuid from 'cuid';
 
 const NOUNS = {
 	common: [
@@ -154,7 +154,8 @@ function getUserCuid(username) {
 	return (username) ? username + '-' + id : id;
 }
 
-module.exports = {
+// module.exports = {
+export default {
 	getQuasiUniqueUserName,
 	getUserCuid
 };

@@ -1,14 +1,14 @@
 // Based on https://hackernoon.com/how-to-build-a-multiplayer-browser-game-4a793818c29b
 
 // Library Dependencies
-const express = require('express');
-const socketIO = require('socket.io');
+import express from 'express';
+import socketIO from 'socket.io';
 // import express from '../node_modules/express/index.js';
 // import socketIO from '../node_modules/socket.io/lib/index.js';
 
 // Node Dependencies
-const http = require('http');
-const path = require('path');
+import http from 'http';
+import path from 'path';
 // import http from 'http';
 // import path from 'path';
 
@@ -72,7 +72,8 @@ function publish(eventName, data) {
 }
 
 // export default io;
-module.exports = {
+// module.exports = {
+export default {
 	start, events, io,
 	subscribe, publish,
 	on: subscribe, trigger: publish,

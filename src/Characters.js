@@ -1,4 +1,11 @@
-const usernaming = require('./usernaming.js');
+import usernaming from './usernaming.js';
+
+const DISPLAY_CLASSES = ['ranger', 'fighter', 'cleric', 'thief', 'wizard', 'druid', 'fat'];
+
+function choose(arr = []) {
+	const r = Math.floor(Math.random() * arr.length);
+	return arr[r];
+}
 
 class Characters {
 	constructor() {
@@ -14,7 +21,9 @@ class Characters {
 			characterKey,
 			userKey,
 			mapKey,
-			pos
+			pos,
+			gender: choose([0, 1]), // 0 = female, 1 = male
+			displayClass: choose(DISPLAY_CLASSES)
 		};
 		this.map.set(characterKey, char);
 		this.set.add(char);
@@ -53,5 +62,5 @@ class Characters {
 	}
 }
 
-// export default Characters;
-module.exports = Characters;
+export default Characters;
+// module.exports = Characters;

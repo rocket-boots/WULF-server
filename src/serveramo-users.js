@@ -1,4 +1,4 @@
-const usernaming = require('./usernaming.js');
+import usernaming from './usernaming.js';
 
 const users = {};
 const SYSTEM = 'System';
@@ -145,4 +145,5 @@ function getUsers() {
 	return crew;
 }
 
-module.exports = serveramoUsers;
+// module.exports = serveramoUsers;
+export default serveramoUsers;
